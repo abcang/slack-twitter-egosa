@@ -36,3 +36,17 @@ FILTER_STREAM_WORDS=abcang
 ^D
 $ ruby main.rb
 ```
+
+## Dockerを使って起動
+
+```bash
+docker run \
+    -e "WEBHOOK_URL=https://hooks.slack.com/services/XXXXXXXX/XXXXXXXX/XXXXXXXX" \
+    -e "CONSUMER_KEY=XXXXXXXX" \
+    -e "CONSUMER_SECRET=XXXXXXXX" \
+    -e "OAUTH_TOKEN=XXXXXXXX" \
+    -e "OAUTH_TOKEN_SECRET=XXXXXXXX" \
+    -e "USER_STREAM_WORDS=阿部 あべ" \
+    -e "FILTER_STREAM_WORDS=abcang" \
+    abcang/slack-twitter-egosa
+```
