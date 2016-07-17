@@ -14,4 +14,4 @@ RUN bundle install --deployment
 
 COPY . /app
 
-CMD ruby ./main.rb'
+CMD ruby ./main.rb
