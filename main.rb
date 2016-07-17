@@ -50,20 +50,23 @@ end
 poster = SlackPoster.instance
 threads = []
 
+user_stream_words = ENV['USER_STREAM_WORDS'].dup.force_encoding('utf-8').split(' ')
+filter_stream_words = ENV['FILTER_STREAM_WORDS'].dup.force_encoding('utf-8').split(' ')
+
 threads << Thread.new do
   TweetStream::Client.new.userstream do |status|
     if status.retweet?
       status = status.retweeted_status
       next if status.user.following?
     end
-    if CGI.unescapeHTML(status.full_text) =~ /#{ENV['USER_STREAM_WORDS'].gsub(/ /, '|')}/
+    if CGI.unescapeHTML(status.full_text) =~ /#{user_stream_words.join('|')}/
       poster.post_status(status)
     end
   end
 end
 
 threads << Thread.new do
-  TweetStream::Client.new.track(*(ENV['FILTER_STREAM_WORDS'].split(' '))) do |status|
+  TweetStream::Client.new.track(*filter_stream_words) do |status|
     poster.post_status(status) unless status.retweet?
   end
 end
