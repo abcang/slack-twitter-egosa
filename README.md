@@ -50,3 +50,6 @@ docker run \
     -e "FILTER_STREAM_WORDS=abcang" \
     abcang/slack-twitter-egosa
 ```
+
+## ライセンス
+MIT
