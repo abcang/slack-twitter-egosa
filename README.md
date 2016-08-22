@@ -1,6 +1,8 @@
 slack-twitter-egosa
 ===
 
+[![](https://images.microbadger.com/badges/version/abcang/slack-twitter-egosa.svg)](http://microbadger.com/images/abcang/slack-twitter-egosa "Get your own version badge on microbadger.com")
+
 TwitterでエゴサしてSlackに投稿します。
 
 ## 環境
