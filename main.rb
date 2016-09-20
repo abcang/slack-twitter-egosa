@@ -50,8 +50,27 @@ end
 poster = SlackPoster.instance
 threads = []
 
-user_stream_words = ENV['USER_STREAM_WORDS'].dup.force_encoding('utf-8').split(' ')
-filter_stream_words = ENV['FILTER_STREAM_WORDS'].dup.force_encoding('utf-8').split(' ')
+user_stream_words = []
+user_stream_words_exclude = []
+ENV['USER_STREAM_WORDS'].to_s.dup.force_encoding('utf-8').split(' ').each do |word|
+  if word.start_with?('-')
+    user_stream_words_exclude << word[1..-1]
+  else
+    user_stream_words << word
+  end
+end
+
+filter_stream_words = []
+filter_stream_words_exclude = []
+ENV['FILTER_STREAM_WORDS'].to_s.dup.force_encoding('utf-8').split(' ').each do |word|
+  if word.start_with?('-')
+    filter_stream_words_exclude << word[1..-1]
+  else
+    filter_stream_words << word
+  end
+end
+
+mute_users = ENV['MUTE_USERS'].to_s.downcase.split(' ')
 
 threads << Thread.new do
   TweetStream::Client.new.userstream do |status|
@@ -59,7 +78,11 @@ threads << Thread.new do
       status = status.retweeted_status
       next if status.user.following?
     end
-    if CGI.unescapeHTML(status.full_text) =~ /#{user_stream_words.join('|')}/
+
+    full_text = CGI.unescapeHTML(status.full_text)
+    if !mute_users.include?(status.user.screen_name.downcase) &&
+        full_text =~ /#{user_stream_words.join('|')}/ &&
+        !(full_text =~ /#{user_stream_words_exclude.join('|')}/) &&
       poster.post_status(status)
     end
   end
@@ -67,8 +90,11 @@ end
 
 threads << Thread.new do
   TweetStream::Client.new.track(*filter_stream_words) do |status|
-    poster.post_status(status) unless status.retweet?
+    if !status.retweet? && !mute_users.include?(status.user.screen_name.downcase) &&
+        !(CGI.unescapeHTML(status.full_text) =~ /#{filter_stream_words_exclude.join('|')}/) &&
+      poster.post_status(status)
+    end
   end
 end
 
-threads.each { |t| t.join }
+threads.each(&:join)

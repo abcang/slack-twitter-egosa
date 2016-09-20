@@ -17,9 +17,9 @@ TwitterでエゴサしてSlackに投稿します。
 * `CONSUMER_SECRET`: TwitterのConsumer Secret
 * `OAUTH_TOKEN`: TwitterのAccess Token
 * `OAUTH_TOKEN_SECRET`: TwitterのAccess Token Secret
-* `USER_STREAM_WORDS`: 自分のタイムラインから検索するワード。スペース区切りで複数指定可。
-* `FILTER_STREAM_WORDS`: Twitter全体から検索するワード。スペース区切りで複数指定可。
-
+* `USER_STREAM_WORDS`: 自分のタイムラインから検索するワード。スペース区切りで複数指定可能。
+* `FILTER_STREAM_WORDS`: Twitter全体から検索するワード。スペース区切りで複数指定可能。
+* `MUTE_USERS`: エゴサ対象外にするユーザ。スペース区切りで複数指定可能。
 
 ## 普通に起動
 
@@ -34,7 +34,8 @@ CONSUMER_SECRET=XXXXXXXX
 OAUTH_TOKEN=XXXXXXXX
 OAUTH_TOKEN_SECRET=XXXXXXXX
 USER_STREAM_WORDS=阿部 あべ
-FILTER_STREAM_WORDS=abcang
+FILTER_STREAM_WORDS=abcang ABCanG1015 -@ABCanG1015
+MUTE_USERS=ABCanG1015
 ^D
 $ ruby main.rb
 ```
@@ -49,9 +50,14 @@ docker run \
     -e "OAUTH_TOKEN=XXXXXXXX" \
     -e "OAUTH_TOKEN_SECRET=XXXXXXXX" \
     -e "USER_STREAM_WORDS=阿部 あべ" \
-    -e "FILTER_STREAM_WORDS=abcang" \
+    -e "FILTER_STREAM_WORDS=abcang ABCanG1015 -@ABCanG1015" \
+    -e "MUTE_USERS=ABCanG1015" \
     abcang/slack-twitter-egosa
 ```
+
+## 更新履歴
+* 2016/08/23: 公開
+* 2016/09/20: ミュートユーザ、除外キーワード機能を追加
 
 ## ライセンス
 MIT
