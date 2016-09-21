@@ -1,7 +1,4 @@
-# A sample Gemfile
-source "https://rubygems.org"
+source 'https://rubygems.org'
 
-# gem "rails"
-gem "tweetstream"
-gem 'slack-poster'
-gem 'dotenv'
+# Specify your gem's dependencies in slack_twitter_egosa.gemspec
+gemspec
