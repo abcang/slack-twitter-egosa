@@ -23,7 +23,7 @@ class WordManager
   end
 
   def match_target?(text)
-    !target.empty? && (text =~ /#{target.join('|')}/ ? true : false)
+    !target.empty? && (text =~ /#{target.join('|')}/i ? true : false)
   end
 
   def unmatch_target?(text)
@@ -31,7 +31,7 @@ class WordManager
   end
 
   def match_exclude?(text)
-    !exclude.empty? && (text =~ /#{exclude.join('|')}/ ? true : false)
+    !exclude.empty? && (text =~ /#{exclude.join('|')}/i ? true : false)
   end
 
   def unmatch_exclude?(text)
