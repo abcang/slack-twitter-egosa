@@ -7,4 +7,4 @@ RUN cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
 
 RUN gem install slack_twitter_egosa
 
-CMD slack_twitter_egosa
+CMD ["slack_twitter_egosa"]
