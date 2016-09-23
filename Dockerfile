@@ -1,10 +1,10 @@
-FROM ruby:latest
+FROM ruby:alpine
 
 MAINTAINER ABCanG <abcang1015@gmail.com>
 
-# timezone
-RUN cp /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
-
-RUN gem install slack_twitter_egosa
+RUN apk add --update make g++ && \
+    gem install slack_twitter_egosa && \
+    apk del make && \
+    rm -rf /var/cache/apk/*
 
 CMD ["slack_twitter_egosa"]
