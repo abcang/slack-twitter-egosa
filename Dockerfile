@@ -1,6 +1,6 @@
 FROM ruby:alpine
 
-MAINTAINER ABCanG <abcang1015@gmail.com>
+MAINTAINER abcang <abcang1015@gmail.com>
 
 RUN apk add --update make g++ && \
     gem install slack_twitter_egosa && \
