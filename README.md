@@ -1,7 +1,7 @@
 slack-twitter-egosa
 ===
 
-[![Build Status](https://travis-ci.org/ABCanG/slack-twitter-egosa.svg?branch=master)](https://travis-ci.org/ABCanG/slack-twitter-egosa)
+[![Build Status](https://travis-ci.org/abcang/slack-twitter-egosa.svg?branch=master)](https://travis-ci.org/abcang/slack-twitter-egosa)
 [![Gem Version](https://badge.fury.io/rb/slack_twitter_egosa.svg)](https://badge.fury.io/rb/slack_twitter_egosa)
 [![](https://images.microbadger.com/badges/version/abcang/slack-twitter-egosa.svg)](http://microbadger.com/images/abcang/slack-twitter-egosa "Get your own version badge on microbadger.com")
 
