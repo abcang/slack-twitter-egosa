@@ -4,7 +4,7 @@ require 'slack_twitter_egosa/word_manager'
 require 'slack_twitter_egosa/user_filter'
 
 require 'dotenv'
-require 'tweetstream'
+require 'twitter'
 
 module SlackTwitterEgosa
   class << self
@@ -20,11 +20,9 @@ module SlackTwitterEgosa
         exit 1
       end
 
-      init_twitter
-
       threads = [
-        user_stream_thread,
-        filter_stream_thread
+        home_timeline_thread,
+        search_thread
       ]
       threads.each(&:join)
     end
@@ -42,13 +40,12 @@ module SlackTwitterEgosa
       target_env - env_list
     end
 
-    def init_twitter
-      TweetStream.configure do |config|
-        config.consumer_key       = ENV['CONSUMER_KEY']
-        config.consumer_secret    = ENV['CONSUMER_SECRET']
-        config.oauth_token        = ENV['OAUTH_TOKEN']
-        config.oauth_token_secret = ENV['OAUTH_TOKEN_SECRET']
-        config.auth_method        = :oauth
+    def client
+      @client ||= Twitter::REST::Client.new do |config|
+        config.consumer_key        = ENV['CONSUMER_KEY']
+        config.consumer_secret     = ENV['CONSUMER_SECRET']
+        config.access_token        = ENV['OAUTH_TOKEN']
+        config.access_token_secret = ENV['OAUTH_TOKEN_SECRET']
       end
     end
 
@@ -56,40 +53,70 @@ module SlackTwitterEgosa
       @poster ||= SlackPoster.new(ENV['WEBHOOK_URL'])
     end
 
-    def user_stream
-      @user_stream ||= WordManager.new(ENV['USER_STREAM_WORDS'])
+    def home_timeline_words
+      @home_timeline_words ||= WordManager.new(ENV['HOME_TIMELINE_WORDS'])
     end
 
-    def filter_stream
-      @filter_stream ||= WordManager.new(ENV['FILTER_STREAM_WORDS'])
+    def search_words
+      @search_words ||= WordManager.new(ENV['SEARCH_WORDS'])
     end
 
     def mute_users
       @mute_users ||= UserFilter.new(ENV['MUTE_USERS'])
     end
 
-    def user_stream_thread
-      Thread.new do
-        TweetStream::Client.new.userstream do |status|
-          if status.retweet?
-            status = status.retweeted_status
-            next if status.user.following?
-          end
+    def match_on_home_timeline?(status)
+      if status.retweet?
+        status = status.retweeted_status
+        return false if status.user.following?
+      end
 
-          if mute_users.unmatch?(status.user.screen_name) &&
-              user_stream.match?(CGI.unescapeHTML(status.full_text))
-            poster.post_status(status)
+      mute_users.unmatch?(status.user.screen_name) && home_timeline_words.match?(CGI.unescapeHTML(status.full_text))
+    end
+
+    def match_on_search?(status)
+      !status.retweet? && mute_users.unmatch?(status.user.screen_name) &&
+        search_words.unmatch_exclude?(CGI.unescapeHTML(status.full_text))
+    end
+
+    def home_timeline_thread
+      Thread.new do
+        loop do
+          sleep 90 if @home_timeline_since_id
+
+          params = { count: 200 }
+          params[:since_id] = @home_timeline_since_id if @home_timeline_since_id
+          statuses = client.home_timeline(params)
+          next if statuses.empty?
+
+          before_home_timeline_since_id = @home_timeline_since_id
+          @home_timeline_since_id = statuses.first.id
+          next unless before_home_timeline_since_id
+
+          statuses.each do |status|
+            poster.post_status(status) if match_on_home_timeline?(status)
           end
         end
       end
     end
 
-    def filter_stream_thread
+    def search_thread
       Thread.new do
-        TweetStream::Client.new.track(*filter_stream.target) do |status|
-          if !status.retweet? && mute_users.unmatch?(status.user.screen_name) &&
-              filter_stream.unmatch_exclude?(CGI.unescapeHTML(status.full_text))
-            poster.post_status(status)
+        loop do
+          sleep 90 if @search_since_id
+
+          params = { result_type: 'recent', count: 100 }
+          params[:since_id] = @search_since_id if @search_since_id
+          q = search_words.target.join(' OR ') + ' ' + search_words.exclude.map { |word| "-#{word}" }.join(' ')
+          statuses = client.search(q, params).to_a
+          next if statuses.empty?
+
+          before_search_since_id = @search_since_id
+          @search_since_id = statuses.first.id
+          next unless before_search_since_id
+
+          statuses.each do |status|
+            poster.post_status(status) if match_on_search?(status)
           end
         end
       end

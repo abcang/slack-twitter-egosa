@@ -1,4 +1,4 @@
-FROM ruby:2.4-alpine
+FROM ruby:alpine
 
 MAINTAINER ABCanG <abcang1015@gmail.com>
 

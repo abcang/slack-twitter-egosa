@@ -6,7 +6,7 @@ require 'slack_twitter_egosa/version'
 Gem::Specification.new do |spec|
   spec.name          = 'slack_twitter_egosa'
   spec.version       = SlackTwitterEgosa::VERSION
-  spec.authors       = ['ABCanG']
+  spec.authors       = ['abcang']
   spec.email         = ['abcang1015@gmail.com']
 
   spec.summary       = 'Eegosearching twitter and post to slack.'
@@ -19,9 +19,9 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'dotenv', '~> 2.1.1'
+  spec.add_dependency 'dotenv', '~> 2.4.0'
   spec.add_dependency 'slack-poster', '~> 2.2.0'
-  spec.add_dependency 'tweetstream', '~> 2.6.1'
+  spec.add_dependency 'twitter', '~> 6.2.0'
 
   spec.add_development_dependency 'bundler', '~> 1.12'
   spec.add_development_dependency 'rake', '~> 10.0'
