@@ -71,12 +71,12 @@ module SlackTwitterEgosa
         return false if status.user.following?
       end
 
-      mute_users.unmatch?(status.user.screen_name) && home_timeline_words.match?(CGI.unescapeHTML(status.full_text))
+      mute_users.unmatch?(status.user.screen_name) && home_timeline_words.match?(CGI.unescapeHTML(status.attrs[:full_text]))
     end
 
     def match_on_search?(status)
       !status.retweet? && mute_users.unmatch?(status.user.screen_name) &&
-        search_words.unmatch_exclude?(CGI.unescapeHTML(status.full_text))
+        search_words.unmatch_exclude?(CGI.unescapeHTML(status.attrs[:full_text]))
     end
 
     def home_timeline_thread
@@ -84,7 +84,7 @@ module SlackTwitterEgosa
         loop do
           sleep 90 if @home_timeline_since_id
 
-          params = { count: 200 }
+          params = { count: 200, tweet_mode: 'extended' }
           params[:since_id] = @home_timeline_since_id if @home_timeline_since_id
           statuses = client.home_timeline(params)
           next if statuses.empty?
@@ -105,10 +105,9 @@ module SlackTwitterEgosa
         loop do
           sleep 90 if @search_since_id
 
-          params = { result_type: 'recent', count: 100 }
+          params = { result_type: 'recent', count: 100, tweet_mode: 'extended' }
           params[:since_id] = @search_since_id if @search_since_id
-          q = search_words.target.join(' OR ') + ' ' + search_words.exclude.map { |word| "-#{word}" }.join(' ')
-          statuses = client.search(q, params).to_a
+          statuses = client.search(search_words.query, params).to_a
           next if statuses.empty?
 
           before_search_since_id = @search_since_id

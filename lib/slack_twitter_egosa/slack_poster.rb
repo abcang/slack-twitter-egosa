@@ -12,7 +12,7 @@ class SlackPoster
       unless pushed?(status.id)
         @poster.icon_url = status.user.profile_image_url
         @poster.username = "#{status.user.name}(@#{status.user.screen_name})"
-        @poster.send_message("#{status.full_text}\n#{status.url}")
+        @poster.send_message("#{status.attrs[:full_text]}\n#{status.url}")
         push(status.id)
       end
     end

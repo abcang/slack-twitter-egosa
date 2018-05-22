@@ -14,6 +14,13 @@ class WordManager
     end
   end
 
+  def query
+    [
+      target.join(' OR '),
+      exclude.map { |word| "-#{word}" }.join(' ')
+    ].join(' ')
+  end
+
   def match?(text)
     match_target?(text) && unmatch_exclude?(text)
   end
