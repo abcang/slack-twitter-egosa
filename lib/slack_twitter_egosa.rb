@@ -93,7 +93,7 @@ module SlackTwitterEgosa
           @home_timeline_since_id = statuses.first.id
           next unless before_home_timeline_since_id
 
-          statuses.each do |status|
+          statuses.reverse_each do |status|
             poster.post_status(status) if match_on_home_timeline?(status)
           end
         end
@@ -114,7 +114,7 @@ module SlackTwitterEgosa
           @search_since_id = statuses.first.id
           next unless before_search_since_id
 
-          statuses.each do |status|
+          statuses.reverse_each do |status|
             poster.post_status(status) if match_on_search?(status)
           end
         end
