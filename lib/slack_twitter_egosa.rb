@@ -66,11 +66,6 @@ module SlackTwitterEgosa
     end
 
     def match_on_home_timeline?(status)
-      if status.retweet?
-        status = status.retweeted_status
-        return false if status.user.following?
-      end
-
       mute_users.unmatch?(status.user.screen_name) && home_timeline_words.match?(CGI.unescapeHTML(status.attrs[:full_text]))
     end
 
@@ -94,6 +89,11 @@ module SlackTwitterEgosa
           next unless before_home_timeline_since_id
 
           statuses.reverse_each do |status|
+            if status.retweet?
+              status = status.retweeted_status
+              next if status.user.following?
+            end
+
             poster.post_status(status) if match_on_home_timeline?(status)
           end
         end
