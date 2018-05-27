@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class UserFilter
   attr_reader :mute_users
 

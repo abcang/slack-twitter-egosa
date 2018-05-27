@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'slack_twitter_egosa/version'
 require 'slack_twitter_egosa/slack_poster'
 require 'slack_twitter_egosa/word_manager'

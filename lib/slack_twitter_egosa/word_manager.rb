@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class WordManager
   attr_reader :target, :exclude
 
