@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'thwait'
+
 require 'slack_twitter_egosa/version'
 require 'slack_twitter_egosa/slack_poster'
 require 'slack_twitter_egosa/word_manager'
@@ -26,7 +28,7 @@ module SlackTwitterEgosa
         home_timeline_thread,
         search_thread
       ]
-      threads.each(&:join)
+      ThreadsWait.all_waits(*threads)
     end
 
     private
