@@ -81,7 +81,7 @@ module SlackTwitterEgosa
     def home_timeline_thread
       Thread.new do
         loop do
-          sleep 90 if @home_timeline_since_id
+          sleep 180 if @home_timeline_since_id
 
           params = { count: 200, tweet_mode: 'extended' }
           params[:since_id] = @home_timeline_since_id if @home_timeline_since_id
