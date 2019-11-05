@@ -24,6 +24,7 @@ module SlackTwitterEgosa
         exit 1
       end
 
+      Thread.abort_on_exception = true
       threads = [
         home_timeline_thread,
         search_thread
