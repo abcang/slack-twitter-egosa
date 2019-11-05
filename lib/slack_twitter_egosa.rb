@@ -17,9 +17,9 @@ module SlackTwitterEgosa
 
       lack_env = check_env(ENV.keys)
       unless lack_env.empty?
-        STDERR.puts 'Not enough vnvironment variable'
+        warn 'Not enough vnvironment variable'
         lack_env.each do |env|
-          STDERR.puts "  #{env}"
+          warn "  #{env}"
         end
         exit 1
       end
