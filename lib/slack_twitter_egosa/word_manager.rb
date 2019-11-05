@@ -20,7 +20,7 @@ class WordManager
     [
       target.join(' OR '),
       exclude.map { |word| "-#{word}" }.join(' ')
-    ].join(' ')
+    ].join(' ').strip
   end
 
   def match?(text)

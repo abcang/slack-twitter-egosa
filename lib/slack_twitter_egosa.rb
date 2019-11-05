@@ -6,9 +6,9 @@ require_relative 'slack_twitter_egosa/version'
 require_relative 'slack_twitter_egosa/slack_poster'
 require_relative 'slack_twitter_egosa/word_manager'
 require_relative 'slack_twitter_egosa/user_filter'
+require_relative 'slack_twitter_egosa/twitter_client'
 
 require 'dotenv'
-require 'twitter'
 
 module SlackTwitterEgosa
   class << self
@@ -25,10 +25,9 @@ module SlackTwitterEgosa
       end
 
       Thread.abort_on_exception = true
-      threads = [
-        home_timeline_thread,
-        search_thread
-      ]
+      threads = []
+      threads << home_timeline_thread unless home_timeline_words.query.empty?
+      threads << search_thread unless search_words.query.empty?
       ThreadsWait.all_waits(*threads)
     end
 
@@ -46,12 +45,13 @@ module SlackTwitterEgosa
     end
 
     def client
-      @client ||= Twitter::REST::Client.new do |config|
-        config.consumer_key        = ENV['CONSUMER_KEY']
-        config.consumer_secret     = ENV['CONSUMER_SECRET']
-        config.access_token        = ENV['OAUTH_TOKEN']
-        config.access_token_secret = ENV['OAUTH_TOKEN_SECRET']
-      end
+      @client ||= TwitterClient.new(
+        consumer_key: ENV['CONSUMER_KEY'],
+        consumer_secret: ENV['CONSUMER_SECRET'],
+        access_token: ENV['OAUTH_TOKEN'],
+        access_token_secret: ENV['OAUTH_TOKEN_SECRET'],
+        search_query: search_words.query
+      )
     end
 
     def poster
@@ -82,18 +82,7 @@ module SlackTwitterEgosa
     def home_timeline_thread
       Thread.new do
         loop do
-          sleep 180 if @home_timeline_since_id
-
-          params = { count: 200, tweet_mode: 'extended' }
-          params[:since_id] = @home_timeline_since_id if @home_timeline_since_id
-          statuses = client.home_timeline(params)
-          next if statuses.empty?
-
-          before_home_timeline_since_id = @home_timeline_since_id
-          @home_timeline_since_id = statuses.first.id
-          next unless before_home_timeline_since_id
-
-          statuses.reverse_each do |status|
+          client.home_timeline.reverse_each do |status|
             if status.retweet?
               status = status.retweeted_status
               next if status.user.following?
@@ -101,6 +90,9 @@ module SlackTwitterEgosa
 
             poster.post_status(status) if match_on_home_timeline?(status)
           end
+
+          # Max 15 requests / 15 min
+          sleep 180
         end
       end
     end
@@ -108,20 +100,12 @@ module SlackTwitterEgosa
     def search_thread
       Thread.new do
         loop do
-          sleep 90 if @search_since_id
-
-          params = { result_type: 'recent', count: 100, tweet_mode: 'extended' }
-          params[:since_id] = @search_since_id if @search_since_id
-          statuses = client.search(search_words.query, params).to_a
-          next if statuses.empty?
-
-          before_search_since_id = @search_since_id
-          @search_since_id = statuses.first.id
-          next unless before_search_since_id
-
-          statuses.reverse_each do |status|
+          client.search.reverse_each do |status|
             poster.post_status(status) if match_on_search?(status)
           end
+
+          # Max 180 requests / 15 min
+          sleep 60
         end
       end
     end

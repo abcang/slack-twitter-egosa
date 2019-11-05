@@ -38,6 +38,10 @@ describe WordManager do
       it { expect(manager.match_exclude?('hello @abcang1015')).to be_truthy }
       it { expect(manager.match_exclude?('hello abcang @abcang1015')).to be_truthy }
     end
+
+    context 'query' do
+      it { expect(manager.query).to eq 'ABCanG OR abcang1015 -@abcang1015' }
+    end
   end
 end
 
@@ -68,5 +72,34 @@ describe 'does not have exclude words' do
     it { expect(manager.match_exclude?('hello abcang')).to be_falsey }
     it { expect(manager.match_exclude?('hello abcang1015')).to be_falsey }
     it { expect(manager.match_exclude?('hello @abcang1015')).to be_falsey }
+  end
+
+  context 'query' do
+    it { expect(manager.query).to eq 'abcang OR abcang1015' }
+  end
+end
+
+describe 'word is empty' do
+  manager = WordManager.new(nil)
+
+  it 'has parsed words' do
+    expect(manager.target).to match_array([])
+    expect(manager.exclude).to match_array([])
+  end
+
+  context 'match?' do
+    it { expect(manager.match?('hello')).to be_falsey }
+  end
+
+  context 'match_target?' do
+    it { expect(manager.match_target?('hello')).to be_falsey }
+  end
+
+  context 'match_exclude?' do
+    it { expect(manager.match_exclude?('hello')).to be_falsey }
+  end
+
+  context 'query' do
+    it { expect(manager.query).to eq '' }
   end
 end
