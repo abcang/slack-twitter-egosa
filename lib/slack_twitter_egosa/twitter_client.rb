@@ -25,11 +25,8 @@ class TwitterClient
     return [] if is_first_fetch
 
     statuses
-  rescue Twitter::Error::TooManyRequests
-    warn 'home_timeline: too many requests'
-    []
-  rescue HTTP::ConnectionError
-    warn 'home_timeline: http connection error'
+  rescue Twitter::Error::TooManyRequests, HTTP::ConnectionError => e
+    warn "home_timeline: #{e.inspect}"
     []
   end
 
@@ -47,11 +44,8 @@ class TwitterClient
     return [] if is_first_fetch
 
     statuses
-  rescue Twitter::Error::TooManyRequests
-    warn 'search: too many requests'
-    []
-  rescue HTTP::ConnectionError
-    warn 'search: http connection error'
+  rescue Twitter::Error::TooManyRequests, HTTP::ConnectionError => e
+    warn "search: #{e.inspect}"
     []
   end
 end
