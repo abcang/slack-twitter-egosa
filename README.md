@@ -68,6 +68,7 @@ docker run \
     * リファクタリング
     * HOME_TIMELINE_WORDS、SEARCH_WORDSのいずれかがない場合APIを叩かないように変更
     * 一部の例外が出た場合は無視するように変更
+* 2019/11/07: エラー出力を改善
 
 ## ライセンス
 MIT
